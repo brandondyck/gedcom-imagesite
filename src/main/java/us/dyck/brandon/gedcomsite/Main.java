@@ -20,7 +20,7 @@ public class Main {
 	System.out.println("Hello gedcomsite!");
 	ModelParser parser = new ModelParser();
 	try {
-	Gedcom model = parser.parseGedcom(new File("test_data/sample_small.ged"));
+	Gedcom model = parser.parseGedcom(new File("test_data/sample_large.ged"));
 	HTMLGenerator.fromModel(model);
 	} catch (SAXParseException spe) {
 	    System.err.println("could not parse model: " + spe.getMessage());

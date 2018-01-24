@@ -16,6 +16,7 @@ import org.folg.gedcom.model.Name;
 import org.folg.gedcom.model.Person;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class HTMLGenerator {
 			throw new IllegalArgumentException();
 		}
 		String dirname = "gedsite_work";
-	Files.createDirectories(Paths.get(dirname));
+		Files.createDirectories(Paths.get(dirname));
 		for (Person p : model.getPeople()) {
 			Path path = Paths.get(dirname, personToFilename(p));
 			try (
@@ -55,15 +56,31 @@ public class HTMLGenerator {
 			body(
 				h1(
 					text(personName(p).orElse("no name!"))
-				)
+				),
+				formatEvents(p)
 			)
 		);
 	}
 	
+	private static DomContent formatEvents(Person p) {
+		List<DomContent> eventElements = new LinkedList<>();
+		p.getEventsFacts().forEach(fact -> {
+			eventElements.add(dt(fact.getDisplayType()));
+			String val;
+			if (fact.getDate() != null) {
+				val = fact.getDate();
+			} else {
+				val = fact.getValue();
+			}
+			eventElements.add(dd(val));
+		});
+		return dl().with(eventElements);
+	}
+	
 	private static Optional<String> personName(Person p) {
-	List<Name> names = p.getNames();
-	return Optional.ofNullable(
-		names.size() > 0 ? names.get(0).getDisplayValue() : null);
+		List<Name> names = p.getNames();
+		return Optional.ofNullable(
+			names.size() > 0 ? names.get(0).getDisplayValue() : null);
 	}
 	
 	private static String personToFilename(Person p) {
