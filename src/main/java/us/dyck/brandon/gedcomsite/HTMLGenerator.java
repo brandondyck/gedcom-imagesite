@@ -14,9 +14,9 @@ import java.nio.file.Path;
 import org.folg.gedcom.model.Gedcom;
 import org.folg.gedcom.model.Name;
 import org.folg.gedcom.model.Person;
+import org.folg.gedcom.model.EventFact;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +42,6 @@ public class HTMLGenerator {
 			) {
 				personToHtml(p).render(writer);
 			}
-
 		}
 	}
 	
@@ -57,24 +56,15 @@ public class HTMLGenerator {
 				h1(
 					text(personName(p).orElse("no name!"))
 				),
-				formatEvents(p)
+				dl(each(p.getEventsFacts(), fact -> formatEvent(fact)))
 			)
 		);
 	}
 	
-	private static DomContent formatEvents(Person p) {
-		List<DomContent> eventElements = new LinkedList<>();
-		p.getEventsFacts().forEach(fact -> {
-			eventElements.add(dt(fact.getDisplayType()));
-			String val;
-			if (fact.getDate() != null) {
-				val = fact.getDate();
-			} else {
-				val = fact.getValue();
-			}
-			eventElements.add(dd(val));
-		});
-		return dl().with(eventElements);
+	private static DomContent formatEvent(EventFact fact) {
+                    String date = fact.getDate();
+                    String val = date != null ? date : fact.getValue();
+                    return join(dt(fact.getDisplayType()), dd(val));
 	}
 	
 	private static Optional<String> personName(Person p) {
